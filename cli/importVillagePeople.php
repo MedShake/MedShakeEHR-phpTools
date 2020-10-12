@@ -72,7 +72,8 @@ $csvFile = file('export.csv');
 foreach ($csvFile as $line) {
     $d = str_getcsv($line, ';');
     if(!is_numeric($d[0])) continue;
-    echo $d[0]."<br>\n";
+
+    echo "Adding client with id ". $d[0];
 
     $patient = new msPeopleRelations();
     $patient->setFromID('3');
@@ -115,22 +116,31 @@ foreach ($csvFile as $line) {
 
     // conjoint
     if($d[13] > 0) {
-      $patient->setRelationWithOtherPatient('conjoint', $d[13]);
-    }
-
-    // enfants
-    if(!empty($d[11])) {
-      foreach(explode(',', $d[11]) as $k=>$v) {
-        $patient->setRelationWithOtherPatient('enfant', $v);
+        $patient->setRelationType('relationPatientPatient');
+        $patient->setWithId(intval($d[13]));
+        $patient->setToStatus('conjoint');
+        $patient->setRelation();
       }
-    }
 
-    // fratrie
-    if(!empty($d[12])) {
-      foreach(explode(',', $d[12]) as $k=>$v) {
-        $patient->setRelationWithOtherPatient('sœur / frère', $v);
+      // enfants
+      if(!empty($d[11])) {
+        foreach(explode(',', $d[11]) as $k=>$v) {
+          $patient->setRelationType('relationPatientPatient');
+          $patient->setWithId(intval($v));
+          $patient->setToStatus('enfant');
+          $patient->setRelation();
+        }
       }
-    }
+
+      // fratrie
+      if(!empty($d[12])) {
+        foreach(explode(',', $d[12]) as $k=>$v) {
+            $patient->setRelationType('relationPatientPatient');
+            $patient->setWithId(intval($v));
+            $patient->setToStatus('sœur / frère');
+            $patient->setRelation();
+        }
+      }
 
 }
 echo 'ok';
